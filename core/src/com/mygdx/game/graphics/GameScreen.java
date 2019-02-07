@@ -2,6 +2,7 @@ package com.mygdx.game.graphics;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -18,7 +19,8 @@ public class GameScreen extends ScreenAdapter {
 
     public GameScreen(TiledMap map){
         double aspectRatio = Gdx.graphics.getWidth() / Gdx.graphics.getHeight();
-        Viewport viewport = new FitViewport((float) (Gdx.graphics.getHeight()* aspectRatio)+64, Gdx.graphics.getHeight()+64);
+        int indicator_thickness=Gdx.graphics.getHeight()/16;
+        Viewport viewport = new FitViewport((float) ((indicator_thickness*2+Gdx.graphics.getHeight())* aspectRatio), Gdx.graphics.getHeight()+indicator_thickness*2);
         this.stage = new Stage(viewport);
         this.mapRenderer = new OrthogonalTiledMapRenderer(map);
     }
@@ -26,6 +28,8 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void show(){
         stage.getViewport().apply(false);
+        OrthographicCamera c = (OrthographicCamera) stage.getCamera();
+        //c.translate(-32,-32);
     }
 
     @Override
@@ -33,6 +37,7 @@ public class GameScreen extends ScreenAdapter {
         Gdx.gl.glClearColor(255, 255, 255, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act();
+
         mapRenderer.setView((OrthographicCamera) stage.getCamera());
         mapRenderer.render();
         stage.draw();
