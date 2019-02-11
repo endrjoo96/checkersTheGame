@@ -14,10 +14,14 @@ import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 
+import java.awt.*;
+
 public abstract class Chessboard {
+    private static int segmentSize=0;
 
     public static TiledMap createChessboard(int sizeInPixels){
         int tileSize = (sizeInPixels)/9;
+        segmentSize=tileSize;
 
         Pixmap pixmap = new Pixmap(tileSize*2, tileSize, Pixmap.Format.RGBA8888);
         pixmap.setColor(Color.BROWN);
@@ -98,6 +102,22 @@ public abstract class Chessboard {
 
 
         return map;
+    }
+
+    public static int getSegmentSize(){
+        return segmentSize;
+    }
+
+    public static Point getStartingPoint(){
+        return new Point(0+segmentSize, 0+segmentSize);
+    }
+
+    public static Point getPosition(int xAxis, int yAxis){
+        ++xAxis; ++yAxis;
+        if(xAxis>0 && xAxis<8 && yAxis>0 && yAxis<8){
+            return new Point(getStartingPoint().x*xAxis, getStartingPoint().y*yAxis);
+        }
+        else return new Point(-1,-1);
     }
 }
 
