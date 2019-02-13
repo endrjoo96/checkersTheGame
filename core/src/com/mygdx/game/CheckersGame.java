@@ -17,6 +17,7 @@ public class CheckersGame extends Game {
     private OrthogonalTiledMapRenderer render;
     private Viewport viewport;
     private int chessboardDims;
+    private Chessboard board;
 
     public CheckersGame(){
     }
@@ -24,7 +25,8 @@ public class CheckersGame extends Game {
     @Override
     public void create(){
         chessboardDims=Gdx.graphics.getHeight();
-        map = Chessboard.createChessboard(chessboardDims);
+        board = new Chessboard(chessboardDims);
+        map = board.getMap();
 
         GameScreen gs = new GameScreen(map);
         setScreen(gs);

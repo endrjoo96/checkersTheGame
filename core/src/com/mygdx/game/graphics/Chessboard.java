@@ -13,13 +13,20 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.mygdx.game.objects.Field;
 
 import java.awt.*;
 
-public abstract class Chessboard {
-    private static int segmentSize=0;
+public class Chessboard {
+    private int segmentSize=0;
+    private Field[][] fields = new Field[8][8];
+    private TiledMap createdMap;
 
-    public static TiledMap createChessboard(int sizeInPixels){
+    public TiledMap getMap(){
+        return createdMap;
+    }
+
+    public Chessboard(int sizeInPixels){
         int tileSize = (sizeInPixels)/9;
         segmentSize=tileSize;
 
@@ -44,6 +51,7 @@ public abstract class Chessboard {
                 TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
                 cell.setTile(new StaticTiledMapTile( (j%2 != 0) ? ((i%2 != 0) ? region_black : region_white) : ((i%2 != 0) ? region_white : region_black) ));
                 chessboardLayer.setCell(i, j, cell);
+                fields[i-1][j-1] = new Field();
             }
         }
         layers.add(chessboardLayer);
@@ -99,25 +107,29 @@ public abstract class Chessboard {
         }
         layers.add(indicatorsLayer_vertical);
 
-
-
-        return map;
+        createdMap = map;
     }
 
-    public static int getSegmentSize(){
+    public int getSegmentSize(){
         return segmentSize;
     }
 
-    public static Point getStartingPoint(){
+    public Point getStartingPoint(){
         return new Point(0+segmentSize, 0+segmentSize);
     }
 
-    public static Point getPosition(int xAxis, int yAxis){
+    public Point getPosition(int xAxis, int yAxis) throws IndexOutOfBoundsException {
         ++xAxis; ++yAxis;
-        if(xAxis>0 && xAxis<8 && yAxis>0 && yAxis<8){
+        if(xAxis>=0 && xAxis<8 && yAxis>=0 && yAxis<8){
             return new Point(getStartingPoint().x*xAxis, getStartingPoint().y*yAxis);
         }
-        else return new Point(-1,-1);
+        else throw new IndexOutOfBoundsException("Field coordinates out of bound: xAxis: "+xAxis+", yAxis: "+yAxis);
+    }
+
+    public Field.STATE fieldState(int xAxis, int yAxis) throws IndexOutOfBoundsException{
+        if(xAxis<0 || xAxis>=8 || yAxis<0 || yAxis>=8)
+            throw new IndexOutOfBoundsException("Field coordinates out of bound: xAxis: "+xAxis+", yAxis: "+yAxis);
+        return fields[xAxis][yAxis].getCurrentState();
     }
 }
 

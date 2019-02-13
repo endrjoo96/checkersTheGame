@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -23,14 +24,22 @@ public class Piece extends Actor{
         REGULAR, MASTER
     }
 
-    COLOR color;
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+        super.draw(batch, parentAlpha);
+    }
+
+    final COLOR color;
+    TYPE currentType;
     Texture img;
     Sprite sprite;
-    private Point startingPoint;
-    public Piece(COLOR pieceColor, int xPosition, int yPosition){
+    public Point startingPoint;
+    public Chessboard chessboard;
 
+    public Piece(COLOR pieceColor, int xPosition, int yPosition, Chessboard chessboard){
+        this.chessboard = chessboard;
         color = pieceColor;
-
+        currentType = TYPE.REGULAR;
 
         Pixmap tempPixmap;
         switch (pieceColor){
@@ -47,7 +56,7 @@ public class Piece extends Actor{
                 break;
             }
         }
-        Pixmap scaledPixmap= new Pixmap(Chessboard.getSegmentSize(), Chessboard.getSegmentSize(), tempPixmap.getFormat());
+        Pixmap scaledPixmap= new Pixmap(chessboard.getSegmentSize(), chessboard.getSegmentSize(), tempPixmap.getFormat());
         scaledPixmap.drawPixmap(tempPixmap, 0, 0, tempPixmap.getWidth(), tempPixmap.getHeight(),
                                             0, 0, scaledPixmap.getWidth(), scaledPixmap.getHeight());
         img = new Texture(scaledPixmap);
@@ -59,7 +68,7 @@ public class Piece extends Actor{
         this.setBounds(sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
         this.setTouchable(Touchable.enabled);
 
-        startingPoint = new Point(Chessboard.getPosition(xPosition,yPosition));
+        startingPoint = new Point(xPosition, yPosition);
 
         addListener(new InputListener(){
             @Override
@@ -70,8 +79,5 @@ public class Piece extends Actor{
                 return true;
             }
         });
-
     }
-
-
 }
