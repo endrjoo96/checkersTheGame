@@ -11,32 +11,45 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.mygdx.game.graphics.Chessboard;
-import com.mygdx.game.graphics.DIR;
+import com.mygdx.game.files.FILES;
+import com.mygdx.game.objects.movementmethods.MovementBehavior;
+import com.mygdx.game.objects.movementmethods.Regular;
 
 import java.awt.*;
 
 public class Piece extends Actor{
-    enum COLOR {
+    public enum COLOR {
         WHITE, BLACK
     }
 
-    enum TYPE{
+    public enum TYPE{
         REGULAR, MASTER
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        super.draw(batch, parentAlpha);
+        Point positionInPixels = chessboard.getPosition(startingPoint.x, startingPoint.y);
+        sprite.setPosition(positionInPixels.x, positionInPixels.y);
+        sprite.draw(batch);
     }
 
-    final COLOR color;
-    TYPE currentType;
-    Texture img;
-    Sprite sprite;
+    @Override
+    public void act(float delta) {
+
+        super.act(delta);
+    }
+
+    private boolean isTouched=false;
+    private final COLOR color;
+    private TYPE currentType;
+    private Texture img;
+    private Sprite sprite;
     public Point startingPoint;
-    public Chessboard chessboard;
+    private Chessboard chessboard;
+    private MovementBehavior behavior;
 
     public Piece(COLOR pieceColor, int xPosition, int yPosition, Chessboard chessboard){
+        behavior = new Regular(chessboard);
         this.chessboard = chessboard;
         color = pieceColor;
         currentType = TYPE.REGULAR;
@@ -44,11 +57,11 @@ public class Piece extends Actor{
         Pixmap tempPixmap;
         switch (pieceColor){
             case BLACK: {
-                tempPixmap = new Pixmap(Gdx.files.internal(DIR.FILE.CHECKER_BLACK));
+                tempPixmap = new Pixmap(Gdx.files.internal(FILES.ASSETS.CHECKER_BLACK));
                 break;
             }
             case WHITE:{
-                tempPixmap = new Pixmap(Gdx.files.internal(DIR.FILE.CHECKER_WHITE));
+                tempPixmap = new Pixmap(Gdx.files.internal(FILES.ASSETS.CHECKER_WHITE));
                 break;
             }
             default: {
@@ -70,14 +83,37 @@ public class Piece extends Actor{
 
         startingPoint = new Point(xPosition, yPosition);
 
-        addListener(new InputListener(){
+        chessboard.setFieldState(xPosition, yPosition, this);
+
+
+        addListener(new InputListener(){        //TODO: zrobic handlery bo sie skurwily
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                if(button== Input.Buttons.LEFT){
+                if(button == Input.Buttons.LEFT){
+                    isTouched=true;
                     return true;
                 }
-                return true;
+                return false;
+            }
+
+            @Override
+                public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                if(button == Input.Buttons.LEFT){
+                    isTouched=false;
+                }
             }
         });
+    }
+
+    public void calculateMovementOptions(){
+        behavior.calculateMovementOptions(this);
+    }
+
+    public void setMovement(MovementBehavior newBehavior){
+        behavior = newBehavior;
+    }
+
+    public COLOR getPieceColor(){
+        return color;
     }
 }

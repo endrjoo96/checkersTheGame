@@ -2,34 +2,40 @@ package com.mygdx.game.graphics;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.MapRenderer;
-import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.mygdx.game.objects.Piece;
 
 public class GameScreen extends ScreenAdapter {
     Stage stage;
     MapRenderer mapRenderer;
 
-    public GameScreen(TiledMap map){
-        double aspectRatio = Gdx.graphics.getWidth() / Gdx.graphics.getHeight();
-        int indicator_thickness=Gdx.graphics.getHeight()/16;
-        Viewport viewport = new FitViewport((float) ((indicator_thickness*2+Gdx.graphics.getHeight())* aspectRatio), Gdx.graphics.getHeight()+indicator_thickness*2);
+    public GameScreen(Chessboard board){
+        float w=Gdx.graphics.getWidth();
+        float h=Gdx.graphics.getHeight();
+        double aspectRatio = w/h;
+        Viewport viewport = new FitViewport((float) (board.getSizeInPixels().width* aspectRatio), board.getSizeInPixels().height);
+        //viewport.getCamera().rotate(180, 1,0,0);
         this.stage = new Stage(viewport);
-        this.mapRenderer = new OrthogonalTiledMapRenderer(map);
+        this.mapRenderer = new OrthogonalTiledMapRenderer(board.getMap());
+
+        Gdx.input.setInputProcessor(stage);
+
+        Piece piece = new Piece(Piece.COLOR.BLACK, 0, 0, board);
+        stage.addActor(piece);
+
+        board.assignStage(stage);
     }
 
     @Override
     public void show(){
         stage.getViewport().apply(false);
         OrthographicCamera c = (OrthographicCamera) stage.getCamera();
-        //c.translate(-32,-32);
     }
 
     @Override

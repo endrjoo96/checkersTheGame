@@ -13,9 +13,6 @@ import com.mygdx.game.graphics.*;
 
 public class CheckersGame extends Game {
     private TiledMap map;
-    private OrthographicCamera camera;
-    private OrthogonalTiledMapRenderer render;
-    private Viewport viewport;
     private int chessboardDims;
     private Chessboard board;
 
@@ -28,32 +25,12 @@ public class CheckersGame extends Game {
         board = new Chessboard(chessboardDims);
         map = board.getMap();
 
-        GameScreen gs = new GameScreen(map);
+        GameScreen gs = new GameScreen(board);
         setScreen(gs);
-
-
-        /*render = new OrthogonalTiledMapRenderer(map);
-        render.setView(camera);
-        float aspectratio = Gdx.graphics.getWidth()/ Gdx.graphics.getHeight();
-        viewport = new FitViewport(aspectratio*8, 8, camera);
-        viewport.setCamera(camera);
-        camera.translate(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);*/
-
     }
-
-    /*@Override
-    public void render(){
-        Gdx.gl.glClearColor(1, 1, 1, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        camera.update();
-        render.setView(camera);
-        render.render();
-    }*/
 
     @Override
     public void dispose(){
-        //render.dispose();
         map.dispose();
         getScreen().dispose();
         super.dispose();
