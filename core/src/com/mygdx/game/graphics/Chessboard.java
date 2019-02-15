@@ -15,10 +15,12 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.mygdx.game.objects.Field;
+import com.mygdx.game.objects.Marker;
 import com.mygdx.game.objects.Piece;
 import com.sun.glass.ui.Size;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Chessboard {
     private int xDim=8, yDim=8;
@@ -45,7 +47,10 @@ public class Chessboard {
     public Chessboard(int sizeInPixels){
         this.sizeInPixels = sizeInPixels;
 
+
         /********************   DRAWING CHESSBOARD    *****************/
+
+
         int tileSize = (sizeInPixels)/9;
         segmentSize=tileSize;
 
@@ -66,12 +71,12 @@ public class Chessboard {
 
 
         TiledMapTileLayer chessboardLayer = new TiledMapTileLayer(sizeInPixels-tileSize/2,sizeInPixels-tileSize/2, tileSize, tileSize);
-        for(int i=1; i<=yDim; i++){
-            for(int j=1; j<=xDim; j++){
+        for(int i=1; i<=xDim; i++){
+            for(int j=1; j<=yDim; j++){
                 TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
                 cell.setTile(new StaticTiledMapTile( (j%2 != 0) ? ((i%2 != 0) ? region_black : region_white) : ((i%2 != 0) ? region_white : region_black) ));
                 chessboardLayer.setCell(i, j, cell);
-                fields[j-1][i-1] = new Field((j%2 != 0) ? ((i%2 != 0) ? Field.COLOR.BLACK : Field.COLOR.WHITE) : ((i%2 != 0) ? Field.COLOR.WHITE : Field.COLOR.BLACK) );
+                fields[i-1][j-1] = new Field((j%2 != 0) ? ((i%2 != 0) ? Field.COLOR.BLACK : Field.COLOR.WHITE) : ((i%2 != 0) ? Field.COLOR.WHITE : Field.COLOR.BLACK) );
             }
         }
         layers.add(chessboardLayer);
@@ -92,20 +97,23 @@ public class Chessboard {
         TextureRegion indicator_horizontal_white = new TextureRegion(indicator_h, 0,0, tileSize, tileSize/2);
         TextureRegion indicator_horizontal_black = new TextureRegion(indicator_h, tileSize, 0, tileSize, tileSize/2);
         TiledMapTileLayer indicatorsLayer_horizontal = new TiledMapTileLayer(tileSize*8, tileSize/2, tileSize,tileSize/2);
-        for(int i=1; i<=yDim;i++) {
+        for(int i=1; i<=xDim;i++) {
             //Label label = new Label("1", new Label.LabelStyle());
 
             TiledMapTileLayer.Cell cell_down = new TiledMapTileLayer.Cell();
             cell_down.setTile(new StaticTiledMapTile( (i%2!=0) ? indicator_horizontal_black : indicator_horizontal_white ));
             TiledMapTileLayer.Cell cell_up = new TiledMapTileLayer.Cell();
             cell_up.setTile(new StaticTiledMapTile( (i%2!=0) ? indicator_horizontal_white : indicator_horizontal_black ));
-            indicatorsLayer_horizontal.setCell(i, (xDim+1)*2, cell_down);
+            indicatorsLayer_horizontal.setCell(i, (yDim+1)*2, cell_down);
             indicatorsLayer_horizontal.setCell(i,1, cell_up);
         }
         layers.add(indicatorsLayer_horizontal);
 
 
+
         /********************   LEFT AND RIGHT INDICATORS    *****************/
+
+
 
         Pixmap indicator_vertical = new Pixmap(tileSize/2, tileSize*8, Pixmap.Format.RGBA8888);
         indicator_vertical.setColor(Color.GRAY);
@@ -117,13 +125,13 @@ public class Chessboard {
         TextureRegion indicator_vertical_white = new TextureRegion(indicator_v, 0,0, tileSize/2, tileSize);
         TextureRegion indicator_vertical_black = new TextureRegion(indicator_v, 0, tileSize, tileSize/2, tileSize);
         TiledMapTileLayer indicatorsLayer_vertical = new TiledMapTileLayer(tileSize/2, tileSize*8, tileSize/2,tileSize);
-        for(int i=1; i<=xDim;i++) {
+        for(int i=1; i<=yDim;i++) {
             TiledMapTileLayer.Cell cell_right = new TiledMapTileLayer.Cell();
             cell_right.setTile(new StaticTiledMapTile( (i%2!=0) ? indicator_vertical_black : indicator_vertical_white ));
             TiledMapTileLayer.Cell cell_left = new TiledMapTileLayer.Cell();
             cell_left.setTile(new StaticTiledMapTile( (i%2!=0) ? indicator_vertical_white : indicator_vertical_black ));
             indicatorsLayer_vertical.setCell(1, i, cell_left);
-            indicatorsLayer_vertical.setCell((yDim+1)*2,i, cell_right);
+            indicatorsLayer_vertical.setCell((xDim+1)*2,i, cell_right);
         }
         layers.add(indicatorsLayer_vertical);
 
@@ -160,7 +168,8 @@ public class Chessboard {
         return this;
     }
 
-    public Field getField(int xAxis, int yAxis){
+    public Field getField(int xAxis, int yAxis) throws ArrayIndexOutOfBoundsException{
+        if(xAxis<0 ||xAxis>=xDim || yAxis<0 || yAxis>=yDim) throw new ArrayIndexOutOfBoundsException("No such field: ("+xAxis+", "+yAxis+")");
         return fields[xAxis][yAxis];
     }
 

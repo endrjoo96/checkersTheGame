@@ -16,20 +16,24 @@ public class GameScreen extends ScreenAdapter {
     MapRenderer mapRenderer;
 
     public GameScreen(Chessboard board){
-        float w=Gdx.graphics.getWidth();
-        float h=Gdx.graphics.getHeight();
-        double aspectRatio = w/h;
-        Viewport viewport = new FitViewport((float) (board.getSizeInPixels().width* aspectRatio), board.getSizeInPixels().height);
+        //float w=Gdx.graphics.getWidth();
+        //float h=Gdx.graphics.getHeight();
+        //double aspectRatio = w/h;
+        Viewport viewport = new FitViewport((float) (board.getSizeInPixels().width), board.getSizeInPixels().height);
         //viewport.getCamera().rotate(180, 1,0,0);
         this.stage = new Stage(viewport);
         this.mapRenderer = new OrthogonalTiledMapRenderer(board.getMap());
 
-        Gdx.input.setInputProcessor(stage);
 
-        Piece piece = new Piece(Piece.COLOR.BLACK, 0, 0, board);
-        stage.addActor(piece);
+
+        Piece pieceb = new Piece(Piece.COLOR.BLACK, 1, 3, board);
+        Piece piecew = new Piece(Piece.COLOR.WHITE, 2, 4, board);
+        piecew.disable();
+        stage.addActor(pieceb);
+        stage.addActor(piecew);
 
         board.assignStage(stage);
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override

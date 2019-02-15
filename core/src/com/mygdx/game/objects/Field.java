@@ -36,4 +36,8 @@ public class Field {
         if(currentPiece==null) throw new Exception("Tried to get piece from empty field");
         return currentPiece;
     }
+
+    public void setPiece(Piece piece){
+        currentPiece=piece;
+    }
 }

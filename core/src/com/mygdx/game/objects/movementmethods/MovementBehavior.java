@@ -8,9 +8,9 @@ import java.awt.*;
 
 public interface MovementBehavior {             //BLACK PIECES ALWAYS AT BOTTOM, STAGE IS ROTATED
     void calculateMovementOptions(Piece piece);
-    boolean detectEnemy(Point fieldLocation);
+    boolean detectEnemy(Point fieldLocation, Piece.COLOR color);
     void movePiece(Piece piece);
     void checkForEndOfTurn(Piece piece);
-    void drawIndicator(Chessboard chessboard, Point destinationPoint, Field.STATE state);
-    void removeIndicators(Chessboard chessboard);
+    void drawMarker(Chessboard chessboard, Point destinationPoint, Field.STATE state, Piece piece);
+    void removeMarkers(Chessboard chessboard);
 }

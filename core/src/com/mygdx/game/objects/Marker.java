@@ -16,9 +16,13 @@ public class Marker extends Actor {
     private Sprite sprite;
     private Chessboard chessboard;
     private Point position;
+    private Piece markerOwner;
+    private Field.STATE markerType;
 
-    public Marker(int xPos, int yPos, Chessboard chessboard, Field.STATE state){
+    public Marker(int xPos, int yPos, Chessboard chessboard, Field.STATE state, Piece pieceReference){
         this.chessboard = chessboard;
+        markerOwner = pieceReference;
+        markerType = state;
         Pixmap tempPixmap = new Pixmap(Gdx.files.internal(FILES.ASSETS.MARKER));
         Pixmap scaledPixmap= new Pixmap(chessboard.getSegmentSize(), chessboard.getSegmentSize(), tempPixmap.getFormat());
         scaledPixmap.drawPixmap(tempPixmap, 0, 0, tempPixmap.getWidth(), tempPixmap.getHeight(),
@@ -45,4 +49,10 @@ public class Marker extends Actor {
     private void markField(int xPos, int yPos, Chessboard chessboard, Field.STATE state){
         chessboard.getField(xPos,yPos).setCurrentState(state);
     }
+
+    public Field.STATE markerType(){
+        return markerType;
+    }
+
+
 }
