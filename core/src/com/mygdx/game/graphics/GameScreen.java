@@ -9,31 +9,48 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.mygdx.game.objects.Field;
 import com.mygdx.game.objects.Piece;
 
 public class GameScreen extends ScreenAdapter {
     Stage stage;
     MapRenderer mapRenderer;
+    static Viewport viewport;
+
+    public static Viewport getViewport(){
+        return viewport;
+    }
 
     public GameScreen(Chessboard board){
         //float w=Gdx.graphics.getWidth();
         //float h=Gdx.graphics.getHeight();
-        //double aspectRatio = w/h;
-        Viewport viewport = new FitViewport((float) (board.getSizeInPixels().width), board.getSizeInPixels().height);
+        //float aspectRatio = w/h;
+        viewport = new FitViewport((float) (board.getSizeInPixels().width), board.getSizeInPixels().height);
         //viewport.getCamera().rotate(180, 1,0,0);
+
         this.stage = new Stage(viewport);
         this.mapRenderer = new OrthogonalTiledMapRenderer(board.getMap());
 
+        for(int i=0; i<3;i++){
+            for(int j=0;j<8;j++){
+                if(board.getField(i,j).getColor()== Field.COLOR.BLACK){
+                    Piece piece = new Piece(Piece.COLOR.BLACK, j, i, board);
+                    stage.addActor(piece);
+                }
+            }
+        }
+        for(int i=5; i<8;i++){
+            for(int j=0;j<8;j++){
+                if(board.getField(i,j).getColor()== Field.COLOR.BLACK){
+                    Piece piece = new Piece(Piece.COLOR.WHITE, j, i, board);
+                    stage.addActor(piece);
+                }
+            }
+        }
 
-
-        Piece pieceb = new Piece(Piece.COLOR.BLACK, 1, 3, board);
-        Piece piecew = new Piece(Piece.COLOR.WHITE, 2, 4, board);
-        piecew.disable();
-        stage.addActor(pieceb);
-        stage.addActor(piecew);
 
         board.assignStage(stage);
-        Gdx.input.setInputProcessor(stage);
+        Gdx.input.setInputProcessor(board);
     }
 
     @Override

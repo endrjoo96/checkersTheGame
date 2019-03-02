@@ -1,6 +1,8 @@
 package com.mygdx.game.graphics;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -12,46 +14,38 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.mygdx.game.files.FILES;
 import com.mygdx.game.objects.Field;
 import com.mygdx.game.objects.Marker;
 import com.mygdx.game.objects.Piece;
+import com.mygdx.game.objects.movementmethods.Queen;
 import com.sun.glass.ui.Size;
 
 import java.awt.*;
 import java.util.ArrayList;
 
-public class Chessboard {
+public class Chessboard extends InputAdapter {
     private int xDim=8, yDim=8;
     private int sizeInPixels;
     private int segmentSize=0;
     private Field[][] fields = new Field[xDim][yDim];
     private TiledMap createdMap;
     private Stage stage;
-
-    public Size getSizeInPixels(){
-        int w=segmentSize*(xDim+2);
-        int h=segmentSize*(yDim+2);
-        return new Size(w, h);
-    }
-
-    public Size getSize(){
-        return new Size(xDim, yDim);
-    }
-
-    public TiledMap getMap(){
-        return createdMap;
-    }
+    boolean whiteMove=true;
 
     public Chessboard(int sizeInPixels){
+
+
         this.sizeInPixels = sizeInPixels;
 
 
         /********************   DRAWING CHESSBOARD    *****************/
 
-
-        int tileSize = (sizeInPixels)/9;
+        int numToDivide = ((xDim<yDim)?yDim:xDim)+2;
+        int tileSize = (sizeInPixels)/numToDivide;
         segmentSize=tileSize;
 
         Pixmap pixmap = new Pixmap(tileSize*2, tileSize, Pixmap.Format.RGBA8888);
@@ -136,6 +130,8 @@ public class Chessboard {
         layers.add(indicatorsLayer_vertical);
 
         createdMap = map;
+
+
     }
 
     public int getSegmentSize(){
@@ -148,7 +144,7 @@ public class Chessboard {
 
     public Point getPosition(int xAxis, int yAxis) throws IndexOutOfBoundsException {
         ++xAxis; ++yAxis;
-        if(xAxis>=0 && xAxis<8 && yAxis>=0 && yAxis<8){
+        if(xAxis>0 && xAxis<=8 && yAxis>0 && yAxis<=8){
             return new Point(getStartingPoint().x*xAxis, getStartingPoint().y*yAxis);
         }
         else throw new IndexOutOfBoundsException("Field coordinates out of bound: xAxis: "+xAxis+", yAxis: "+yAxis);
@@ -169,7 +165,8 @@ public class Chessboard {
     }
 
     public Field getField(int xAxis, int yAxis) throws ArrayIndexOutOfBoundsException{
-        if(xAxis<0 ||xAxis>=xDim || yAxis<0 || yAxis>=yDim) throw new ArrayIndexOutOfBoundsException("No such field: ("+xAxis+", "+yAxis+")");
+        if(xAxis<0 ||xAxis>=xDim || yAxis<0 || yAxis>=yDim)
+            throw new ArrayIndexOutOfBoundsException("No such field: ("+xAxis+", "+yAxis+")");
         return fields[xAxis][yAxis];
     }
 
@@ -180,6 +177,85 @@ public class Chessboard {
     public Stage getStage(){
         return stage;
     }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        boolean isPiece=true;
+        screenY = Gdx.graphics.getHeight()-screenY;
+        try {
+            Piece clickedPiece = getPieceFromCoordinates(new Point(screenX, screenY));
+            if(clickedPiece.getPieceColor()==TurnColor()&&clickedPiece.isClickable())
+                clickedPiece.calculateMovementOptions();
+        }catch (Exception ex) {
+            isPiece=false;
+        }
+        if(!isPiece){
+            try {
+                Marker clickedMarker = getMarkerFromCoordinates(new Point(screenX, screenY));
+                clickedMarker.getMarkerOwner().moveTo(calculateClickedTile(new Point(screenX, screenY)));
+                if((clickedMarker.getMarkerOwner().getPosition().y == getChessboard().yDim-1 || clickedMarker.getMarkerOwner().getPosition().y==0)
+                        && clickedMarker.getMarkerOwner().getPieceType() == Piece.TYPE.REGULAR){
+                clickedMarker.getMarkerOwner().setMovement(new Queen(getChessboard()));
+                clickedMarker.getMarkerOwner().setPieceType(Piece.TYPE.MASTER);
+                clickedMarker.getMarkerOwner().setTexture(new Pixmap(Gdx.files.internal((clickedMarker.getMarkerOwner().getPieceColor()==Piece.COLOR.WHITE)?FILES.ASSETS.CHECKER_WHITE_MASTER : FILES.ASSETS.CHECKER_BLACK_MASTER)));
+                }
+            } catch(Exception ex){
+                isPiece=false;
+            }
+        }
+        return super.touchDown(screenX, screenY, pointer, button);
+
+    }
+
+    private Point calculateClickedTile(Point click){
+        int viewport_width=GameScreen.getViewport().getScreenX();
+        int viewport_height=GameScreen.getViewport().getScreenY();
+        Point startingPoint = getStartingPoint();
+        int xAxis = (click.x-startingPoint.x-viewport_width)/getSegmentSize();
+        int yAxis = (click.y-startingPoint.y-viewport_height)/getSegmentSize();
+        return new Point(xAxis, yAxis);
+    }
+
+    private Marker getMarkerFromCoordinates(Point click) throws Exception{
+        int xAxis = calculateClickedTile(click).x;
+        int yAxis = calculateClickedTile(click).y;
+        if (xAxis>=getSize().width || yAxis>=getSize().height ||
+                xAxis<0 || yAxis<0)
+            throw new Exception("Kliknelo sie poza mape co?");
+        return fields[xAxis][yAxis].getMarker();
+    }
+
+    private Piece getPieceFromCoordinates(Point click) throws Exception{
+        int xAxis = calculateClickedTile(click).x;
+        int yAxis = calculateClickedTile(click).y;
+        if (xAxis>=getSize().width || yAxis>=getSize().height ||
+            xAxis<0 || yAxis<0)
+            throw new Exception("Kliknelo sie poza mape co?");
+        return fields[xAxis][yAxis].getPiece();
+    }
+
+    public Size getSizeInPixels(){
+        int w=segmentSize*(xDim+2);
+        int h=segmentSize*(yDim+2);
+        return new Size(w, h);
+    }
+
+    public Size getSize(){
+        return new Size(xDim, yDim);
+    }
+
+    public TiledMap getMap(){
+        return createdMap;
+    }
+
+    public void swapTurn(){
+        whiteMove =! whiteMove;
+    }
+
+    public Piece.COLOR TurnColor(){
+        return (whiteMove) ? Piece.COLOR.WHITE : Piece.COLOR.BLACK;
+    }
+
 }
 
 

@@ -39,14 +39,11 @@ public class Piece extends Actor {
 
     @Override
     public void act(float delta) {
-        if(Gdx.input.isButtonPressed(Input.Buttons.LEFT))
-        {
-            input.handle(new Event());
-        }
         super.act(delta);
     }
 
-    private boolean isTouched = false;
+    private boolean clickable=true;
+    private boolean isTouched = true;
     private final COLOR color;
     private TYPE currentType;
     private Texture img;
@@ -92,37 +89,13 @@ public class Piece extends Actor {
         startingPoint = new Point(xPosition, yPosition);
 
         chessboard.setFieldState(xPosition, yPosition, this);
-
-        input = new InputListener() {
-
-            @Override
-            public boolean handle(Event e) {
-                return super.handle(e);
-            }
-
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
-                if (button == Input.Buttons.LEFT) {
-                    isTouched = true;
-                }
-                return false;
-            }
-
-
-            @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                if (button == Input.Buttons.LEFT) {
-                    isTouched = false;
-                }
-            }
-        };
-        addListener(input);//TODO: zrobic te handlery nooooooo
     }
 
     public void calculateMovementOptions() {
         behavior.removeMarkers(chessboard);
-        behavior.calculateMovementOptions(this);
+        behavior.removeMarkers(chessboard);
+        behavior.removeMarkers(chessboard);
+        behavior.calculateMovementOptions(this, false);
     }
 
     public void setMovement(MovementBehavior newBehavior) {
@@ -141,11 +114,30 @@ public class Piece extends Actor {
         return startingPoint;
     }
 
-    public void setPosition(Point newPositionOnChessboard){ startingPoint = newPositionOnChessboard;}
-
-    public void disable(){
-        isTouched=false;
+    public Point getPosition(){
+        return startingPoint;
     }
 
-    InputListener input;
+    public void setPieceType(TYPE type){
+        currentType=type;
+    }
+
+    public void moveTo(Point position){
+        behavior.movePiece(this, position);
+    }
+
+    public boolean isClickable(){
+        return clickable;
+    }
+
+    public void isClickable(boolean value){
+        clickable=value;
+    }
+
+    public void setTexture(Pixmap pixmap){
+        Pixmap scaledPixmap = new Pixmap(chessboard.getSegmentSize(), chessboard.getSegmentSize(), pixmap.getFormat());
+        scaledPixmap.drawPixmap(pixmap, 0, 0, pixmap.getWidth(), pixmap.getHeight(),
+                0, 0, scaledPixmap.getWidth(), scaledPixmap.getHeight());
+        img = new Texture(scaledPixmap);
+    }
 }

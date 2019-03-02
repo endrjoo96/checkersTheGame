@@ -17,11 +17,17 @@ public class Marker extends Actor {
     private Chessboard chessboard;
     private Point position;
     private Piece markerOwner;
+    private Piece pieceToKill;
     private Field.STATE markerType;
 
-    public Marker(int xPos, int yPos, Chessboard chessboard, Field.STATE state, Piece pieceReference){
+    public Marker(int xPos, int yPos, Chessboard chessboard, Field.STATE state, Piece markerOwner, Piece pieceToKill){
+        this(xPos, yPos, chessboard, state,markerOwner);
+        this.pieceToKill=pieceToKill;
+    }
+
+    public Marker(int xPos, int yPos, Chessboard chessboard, Field.STATE state, Piece markerOwner){
         this.chessboard = chessboard;
-        markerOwner = pieceReference;
+        this.markerOwner = markerOwner;
         markerType = state;
         Pixmap tempPixmap = new Pixmap(Gdx.files.internal(FILES.ASSETS.MARKER));
         Pixmap scaledPixmap= new Pixmap(chessboard.getSegmentSize(), chessboard.getSegmentSize(), tempPixmap.getFormat());
@@ -41,18 +47,30 @@ public class Marker extends Actor {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        Point positionInPixels = chessboard.getPosition(position.x, position.y);
-        sprite.setPosition(positionInPixels.x, positionInPixels.y);
-        sprite.draw(batch);
+        if(position.x<chessboard.getSize().width && position.y<chessboard.getSize().height){
+            Point positionInPixels = chessboard.getPosition(position.x, position.y);
+            sprite.setPosition(positionInPixels.x, positionInPixels.y);
+            sprite.draw(batch);
+        }
     }
 
     private void markField(int xPos, int yPos, Chessboard chessboard, Field.STATE state){
         chessboard.getField(xPos,yPos).setCurrentState(state);
+        chessboard.getField(xPos, yPos).setMarker(this);
     }
 
     public Field.STATE markerType(){
         return markerType;
     }
 
+    public Piece getMarkerOwner() {
+        return markerOwner;
+    }
 
+    public Point getPosition(){
+        return position;
+    }
+    public Piece getPieceToKill(){
+        return pieceToKill;
+    }
 }

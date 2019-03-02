@@ -7,10 +7,12 @@ import com.mygdx.game.objects.Piece;
 import java.awt.*;
 
 public interface MovementBehavior {             //BLACK PIECES ALWAYS AT BOTTOM, STAGE IS ROTATED
-    void calculateMovementOptions(Piece piece);
+    boolean calculateMovementOptions(Piece piece, boolean calculationModeOnly);
     boolean detectEnemy(Point fieldLocation, Piece.COLOR color);
-    void movePiece(Piece piece);
+    void movePiece(Piece piece, Point point);
+    void checkForHit();
     void checkForEndOfTurn(Piece piece);
     void drawMarker(Chessboard chessboard, Point destinationPoint, Field.STATE state, Piece piece);
+    void drawMarker(Chessboard chessboard, Point destinationPoint, Field.STATE state, Piece piece, Piece pieceToKill);
     void removeMarkers(Chessboard chessboard);
 }
