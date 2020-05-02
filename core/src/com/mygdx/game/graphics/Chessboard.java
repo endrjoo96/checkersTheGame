@@ -2,69 +2,108 @@ package com.mygdx.game.graphics;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.mygdx.game.CheckersGame;
 import com.mygdx.game.files.FILES;
+import com.mygdx.game.graphics.chessboardcomponents.FieldTile;
 import com.mygdx.game.objects.Field;
 import com.mygdx.game.objects.Marker;
 import com.mygdx.game.objects.Piece;
 import com.mygdx.game.objects.movementmethods.Queen;
-import com.sun.glass.ui.Size;
 
 import java.awt.*;
-import java.util.ArrayList;
 
 public class Chessboard extends InputAdapter {
     private int xDim=8, yDim=8;
-    private int sizeInPixels;
+    private int sizeInPixels = CheckersGame.screenHeight;
     private int segmentSize=0;
     private Field[][] fields = new Field[xDim][yDim];
-    private TiledMap createdMap;
+    private TiledMap tiledMap;
+    private MapLayers layers;
     private Stage stage;
     boolean whiteMove=true;
 
-    public Chessboard(int sizeInPixels){
+    private int calculateMappedSize(int[] screenDims, int[] numberOfFragments ){
+        return calculateMappedSize(
+                Math.max(screenDims[0], screenDims[1]),
+                Math.max(numberOfFragments[0], numberOfFragments[1]));
+    }
 
+    private int calculateMappedSize(int originalValue, int numberOfFragments){
+        return (originalValue)/numberOfFragments;
+    }
 
-        this.sizeInPixels = sizeInPixels;
+    private void initiateFields(){
+    }
 
+    private void createChessboard(){
+        FieldTile lightFieldTile =
+                new FieldTile(segmentSize, FieldTile.COLOR_TYPE.LIGHT);
+        FieldTile darkFieldTile =
+                new FieldTile(segmentSize, FieldTile.COLOR_TYPE.DARK);
 
+        TiledMapTileLayer chessboardLayer = new TiledMapTileLayer(CheckersGame.screenWidth,CheckersGame.screenHeight, segmentSize, segmentSize);
+        for(int i=1; i<=xDim; i++){
+            for(int j=1; j<=yDim; j++){     // top left corner starts with light tile
+                TextureRegion currentRegion;
+                if( (i-j)%2 != 0 ){
+                    currentRegion = lightFieldTile.getTexture();
+                }
+                else{
+                    currentRegion = darkFieldTile.getTexture();
+                }
+                TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
+                cell.setTile(new StaticTiledMapTile(currentRegion));
+                chessboardLayer.setCell(i, j, cell);
+                fields[i-1][j-1] = new Field((j%2 != 0) ? ((i%2 != 0) ? Field.COLOR.BLACK : Field.COLOR.WHITE) : ((i%2 != 0) ? Field.COLOR.WHITE : Field.COLOR.BLACK) );
+            }
+        }
+        layers.add(chessboardLayer);
+    }
+
+    private void createIndicators(){
+        FieldTile lightIndicator =
+                new com.mygdx.game.graphics.chessboardcomponents.Indicator(segmentSize, FieldTile.COLOR_TYPE.LIGHT);
+        FieldTile darkIndicator =
+                new com.mygdx.game.graphics.chessboardcomponents.Indicator(segmentSize, FieldTile.COLOR_TYPE.DARK);
+    }
+
+    public Chessboard(){
         /********************   DRAWING CHESSBOARD    *****************/
 
-        int numToDivide = ((xDim<yDim)?yDim:xDim)+2;
-        int tileSize = (sizeInPixels)/numToDivide;
-        segmentSize=tileSize;
+        segmentSize = calculateMappedSize(
+                new int[] {CheckersGame.screenHeight, CheckersGame.screenWidth},
+                new int[] {xDim+2, yDim+2}  // +2 -> margin spaces for indicators
+        );
 
-        Pixmap pixmap = new Pixmap(tileSize*2, tileSize, Pixmap.Format.RGBA8888);
+        tiledMap = new TiledMap();
+        layers = tiledMap.getLayers();
+
+        createChessboard();
+        /*
+        Pixmap pixmap = new Pixmap(segmentSize*2, segmentSize, Pixmap.Format.RGBA8888);
 
         pixmap.setColor(Color.BROWN);
-        pixmap.fillRectangle(0,0,tileSize, tileSize);
+        pixmap.fillRectangle(0,0,segmentSize, segmentSize);
 
         pixmap.setColor(Color.LIGHT_GRAY);
-        pixmap.fillRectangle(0+tileSize,0,tileSize, tileSize);
+        pixmap.fillRectangle(0+segmentSize,0,segmentSize, segmentSize);
 
         Texture t = new Texture(pixmap);
-        TextureRegion region_black = new TextureRegion(t,0,0,tileSize, tileSize);
-        TextureRegion region_white = new TextureRegion(t, 0+tileSize, 0, tileSize, tileSize);
-        TiledMap map = new TiledMap();
-        MapLayers layers = map.getLayers();
+        TextureRegion region_black = new TextureRegion(t,0,0,segmentSize, segmentSize);
+        TextureRegion region_white = new TextureRegion(t, 0+segmentSize, 0, segmentSize, segmentSize);
 
 
 
-        TiledMapTileLayer chessboardLayer = new TiledMapTileLayer(sizeInPixels-tileSize/2,sizeInPixels-tileSize/2, tileSize, tileSize);
+        TiledMapTileLayer chessboardLayer = new TiledMapTileLayer(sizeInPixels-segmentSize/2,sizeInPixels-segmentSize/2, segmentSize, segmentSize);
         for(int i=1; i<=xDim; i++){
             for(int j=1; j<=yDim; j++){
                 TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
@@ -74,23 +113,23 @@ public class Chessboard extends InputAdapter {
             }
         }
         layers.add(chessboardLayer);
-
+*/
 
 
         /********************   UP AND DOWN INDICATORS    *****************/
 
 
 
-        Pixmap indicator_horizontal = new Pixmap(tileSize*8, tileSize/2, Pixmap.Format.RGBA8888);
+        Pixmap indicator_horizontal = new Pixmap(segmentSize*8, segmentSize/2, Pixmap.Format.RGBA8888);
         indicator_horizontal.setColor(Color.GRAY);
-        indicator_horizontal.fillRectangle(0,0,tileSize, tileSize/2);
+        indicator_horizontal.fillRectangle(0,0,segmentSize, segmentSize/2);
         indicator_horizontal.setColor(Color.BLACK);
-        indicator_horizontal.fillRectangle(tileSize,0,tileSize, tileSize/2);
+        indicator_horizontal.fillRectangle(segmentSize,0,segmentSize, segmentSize/2);
 
         Texture indicator_h = new Texture(indicator_horizontal);
-        TextureRegion indicator_horizontal_white = new TextureRegion(indicator_h, 0,0, tileSize, tileSize/2);
-        TextureRegion indicator_horizontal_black = new TextureRegion(indicator_h, tileSize, 0, tileSize, tileSize/2);
-        TiledMapTileLayer indicatorsLayer_horizontal = new TiledMapTileLayer(tileSize*8, tileSize/2, tileSize,tileSize/2);
+        TextureRegion indicator_horizontal_white = new TextureRegion(indicator_h, 0,0, segmentSize, segmentSize/2);
+        TextureRegion indicator_horizontal_black = new TextureRegion(indicator_h, segmentSize, 0, segmentSize, segmentSize/2);
+        TiledMapTileLayer indicatorsLayer_horizontal = new TiledMapTileLayer(segmentSize*8, segmentSize/2, segmentSize,segmentSize/2);
         for(int i=1; i<=xDim;i++) {
             //Label label = new Label("1", new Label.LabelStyle());
 
@@ -109,16 +148,16 @@ public class Chessboard extends InputAdapter {
 
 
 
-        Pixmap indicator_vertical = new Pixmap(tileSize/2, tileSize*8, Pixmap.Format.RGBA8888);
+        Pixmap indicator_vertical = new Pixmap(segmentSize/2, segmentSize*8, Pixmap.Format.RGBA8888);
         indicator_vertical.setColor(Color.GRAY);
-        indicator_vertical.fillRectangle(0,0,tileSize/2, tileSize);
+        indicator_vertical.fillRectangle(0,0,segmentSize/2, segmentSize);
         indicator_vertical.setColor(Color.BLACK);
-        indicator_vertical.fillRectangle(0,tileSize,tileSize/2, tileSize);
+        indicator_vertical.fillRectangle(0,segmentSize,segmentSize/2, segmentSize);
 
         Texture indicator_v = new Texture(indicator_vertical);
-        TextureRegion indicator_vertical_white = new TextureRegion(indicator_v, 0,0, tileSize/2, tileSize);
-        TextureRegion indicator_vertical_black = new TextureRegion(indicator_v, 0, tileSize, tileSize/2, tileSize);
-        TiledMapTileLayer indicatorsLayer_vertical = new TiledMapTileLayer(tileSize/2, tileSize*8, tileSize/2,tileSize);
+        TextureRegion indicator_vertical_white = new TextureRegion(indicator_v, 0,0, segmentSize/2, segmentSize);
+        TextureRegion indicator_vertical_black = new TextureRegion(indicator_v, 0, segmentSize, segmentSize/2, segmentSize);
+        TiledMapTileLayer indicatorsLayer_vertical = new TiledMapTileLayer(segmentSize/2, segmentSize*8, segmentSize/2,segmentSize);
         for(int i=1; i<=yDim;i++) {
             TiledMapTileLayer.Cell cell_right = new TiledMapTileLayer.Cell();
             cell_right.setTile(new StaticTiledMapTile( (i%2!=0) ? indicator_vertical_black : indicator_vertical_white ));
@@ -128,8 +167,6 @@ public class Chessboard extends InputAdapter {
             indicatorsLayer_vertical.setCell((xDim+1)*2,i, cell_right);
         }
         layers.add(indicatorsLayer_vertical);
-
-        createdMap = map;
 
 
     }
@@ -234,18 +271,18 @@ public class Chessboard extends InputAdapter {
         return fields[xAxis][yAxis].getPiece();
     }
 
-    public Size getSizeInPixels(){
+    public Dimension getSizeInPixels(){
         int w=segmentSize*(xDim+2);
         int h=segmentSize*(yDim+2);
-        return new Size(w, h);
+        return new Dimension(w, h);
     }
 
-    public Size getSize(){
-        return new Size(xDim, yDim);
+    public Dimension getSize(){
+        return new Dimension(xDim, yDim);
     }
 
     public TiledMap getMap(){
-        return createdMap;
+        return tiledMap;
     }
 
     public void swapTurn(){

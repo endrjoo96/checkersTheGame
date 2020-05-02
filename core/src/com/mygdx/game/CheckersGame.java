@@ -9,11 +9,11 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.mygdx.game.gameplay.Gameplay;
 import com.mygdx.game.graphics.*;
 
 public class CheckersGame extends Game {
-    private TiledMap map;
-    private int chessboardDims;
+    public static int screenWidth, screenHeight;
     private Chessboard board;
 
     public CheckersGame(){
@@ -21,17 +21,25 @@ public class CheckersGame extends Game {
 
     @Override
     public void create(){
-        chessboardDims=Gdx.graphics.getHeight();
-        board = new Chessboard(chessboardDims);
-        map = board.getMap();
+        screenWidth = Gdx.graphics.getWidth();
+        screenHeight = Gdx.graphics.getHeight();
+
+        new Gameplay().runGame();
+
+        board = new Chessboard();
 
         GameScreen gs = new GameScreen(board);
         setScreen(gs);
     }
 
     @Override
+    public void resize(int width, int height) {
+        super.resize(width, height);
+
+    }
+
+    @Override
     public void dispose(){
-        map.dispose();
         getScreen().dispose();
         super.dispose();
     }

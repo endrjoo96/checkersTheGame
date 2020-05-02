@@ -22,11 +22,7 @@ public class GameScreen extends ScreenAdapter {
     }
 
     public GameScreen(Chessboard board){
-        //float w=Gdx.graphics.getWidth();
-        //float h=Gdx.graphics.getHeight();
-        //float aspectRatio = w/h;
         viewport = new FitViewport((float) (board.getSizeInPixels().width), board.getSizeInPixels().height);
-        //viewport.getCamera().rotate(180, 1,0,0);
 
         this.stage = new Stage(viewport);
         this.mapRenderer = new OrthogonalTiledMapRenderer(board.getMap());
