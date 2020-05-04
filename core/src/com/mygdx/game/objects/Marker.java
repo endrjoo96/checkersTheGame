@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.mygdx.game.files.FILES;
-import com.mygdx.game.graphics.Chessboard;
+import com.mygdx.game.gameplay.objects.Chessboard;
 
 import java.awt.*;
 
@@ -16,16 +16,16 @@ public class Marker extends Actor {
     private Sprite sprite;
     private Chessboard chessboard;
     private Point position;
-    private Piece markerOwner;
-    private Piece pieceToKill;
-    private Field.STATE markerType;
+    private old_Piece markerOwner;
+    private old_Piece oldPieceToKill;
+    private old_Field.STATE markerType;
 
-    public Marker(int xPos, int yPos, Chessboard chessboard, Field.STATE state, Piece markerOwner, Piece pieceToKill){
+    public Marker(int xPos, int yPos, Chessboard chessboard, old_Field.STATE state, old_Piece markerOwner, old_Piece oldPieceToKill){
         this(xPos, yPos, chessboard, state,markerOwner);
-        this.pieceToKill=pieceToKill;
+        this.oldPieceToKill = oldPieceToKill;
     }
 
-    public Marker(int xPos, int yPos, Chessboard chessboard, Field.STATE state, Piece markerOwner){
+    public Marker(int xPos, int yPos, Chessboard chessboard, old_Field.STATE state, old_Piece markerOwner){
         this.chessboard = chessboard;
         this.markerOwner = markerOwner;
         markerType = state;
@@ -48,29 +48,29 @@ public class Marker extends Actor {
     @Override
     public void draw(Batch batch, float parentAlpha) {
         if(position.x<chessboard.getSize().width && position.y<chessboard.getSize().height){
-            Point positionInPixels = chessboard.getPosition(position.x, position.y);
+            Point positionInPixels = chessboard.getPositionInPixels(position.x, position.y);
             sprite.setPosition(positionInPixels.x, positionInPixels.y);
             sprite.draw(batch);
         }
     }
 
-    private void markField(int xPos, int yPos, Chessboard chessboard, Field.STATE state){
+    private void markField(int xPos, int yPos, Chessboard chessboard, old_Field.STATE state){
         chessboard.getField(xPos,yPos).setCurrentState(state);
         chessboard.getField(xPos, yPos).setMarker(this);
     }
 
-    public Field.STATE markerType(){
+    public old_Field.STATE markerType(){
         return markerType;
     }
 
-    public Piece getMarkerOwner() {
+    public old_Piece getMarkerOwner() {
         return markerOwner;
     }
 
     public Point getPosition(){
         return position;
     }
-    public Piece getPieceToKill(){
-        return pieceToKill;
+    public old_Piece getOldPieceToKill(){
+        return oldPieceToKill;
     }
 }

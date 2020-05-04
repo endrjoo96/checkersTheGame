@@ -9,8 +9,11 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.mygdx.game.objects.Field;
-import com.mygdx.game.objects.Piece;
+import com.mygdx.game.gameplay.GameplayDriver;
+import com.mygdx.game.gameplay.objects.Chessboard;
+import com.mygdx.game.gameplay.objects.chessboardcomponents.pieces.Piece;
+
+import java.awt.*;
 
 public class GameScreen extends ScreenAdapter {
     Stage stage;
@@ -21,29 +24,23 @@ public class GameScreen extends ScreenAdapter {
         return viewport;
     }
 
-    public GameScreen(Chessboard board){
+    public GameScreen(){
+        Chessboard board = Chessboard.getInstance();
         viewport = new FitViewport((float) (board.getSizeInPixels().width), board.getSizeInPixels().height);
 
         this.stage = new Stage(viewport);
         this.mapRenderer = new OrthogonalTiledMapRenderer(board.getMap());
 
-        for(int i=0; i<3;i++){
-            for(int j=0;j<8;j++){
-                if(board.getField(i,j).getColor()== Field.COLOR.BLACK){
-                    Piece piece = new Piece(Piece.COLOR.BLACK, j, i, board);
-                    stage.addActor(piece);
-                }
-            }
-        }
-        for(int i=5; i<8;i++){
-            for(int j=0;j<8;j++){
-                if(board.getField(i,j).getColor()== Field.COLOR.BLACK){
-                    Piece piece = new Piece(Piece.COLOR.WHITE, j, i, board);
-                    stage.addActor(piece);
-                }
-            }
-        }
+        GameplayDriver.prepareActors();
 
+        for (int y = 0; y < board.getSize().height; y++) {
+            for (int x = 0; x < board.getSize().width; x++) {
+                Piece tempPiece;
+                if((tempPiece = board.getGrid().getPieceAt(new Point(x,y)))!=null){
+                    stage.addActor(tempPiece);
+                }
+            }
+        }
 
         board.assignStage(stage);
         Gdx.input.setInputProcessor(board);

@@ -2,14 +2,14 @@ package com.mygdx.game.objects.movementmethods;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
-import com.mygdx.game.graphics.Chessboard;
-import com.mygdx.game.objects.Field;
+import com.mygdx.game.gameplay.objects.Chessboard;
+import com.mygdx.game.objects.old_Field;
 import com.mygdx.game.objects.Marker;
-import com.mygdx.game.objects.Piece;
+import com.mygdx.game.objects.old_Piece;
 
 import java.awt.*;
 
-public class Queen implements MovementBehavior{
+public class Queen implements old_MovementBehavior {
     private Chessboard chessboard;
     private boolean forcedAttack=false;
 
@@ -18,7 +18,7 @@ public class Queen implements MovementBehavior{
     }
 
     @Override
-    public boolean calculateMovementOptions(Piece piece, boolean calculationModeOnly) {
+    public boolean calculateMovementOptions(old_Piece oldPiece, boolean calculationModeOnly) {
         Point destinationPoint;
 
         for(int yAxisMove=-1; yAxisMove<=1; yAxisMove+=2) {
@@ -26,20 +26,20 @@ public class Queen implements MovementBehavior{
             for (int xAxisMove = -1; xAxisMove <= 1; xAxisMove += 2) {                         //LEFT/RIGHT MOVEMENT LOOP
                 int extremeColumnY = (xAxisMove == -1) ? 0 : chessboard.getSize().width;      //EXTREME COLUMN
 
-                if (piece.startingPoint.y != extremeRowX && piece.startingPoint.x != extremeColumnY) {                          //CHECKING IF CALCULATING DIAGONAL IS POSSIBLE
-                    destinationPoint = new Point(piece.startingPoint.x + xAxisMove, piece.startingPoint.y + yAxisMove);     //SETTING DESTINATIONPOINT AS RIGHT DIAGONAL FROM CURRENT PIECE POSITION
+                if (oldPiece.startingPoint.y != extremeRowX && oldPiece.startingPoint.x != extremeColumnY) {                          //CHECKING IF CALCULATING DIAGONAL IS POSSIBLE
+                    destinationPoint = new Point(oldPiece.startingPoint.x + xAxisMove, oldPiece.startingPoint.y + yAxisMove);     //SETTING DESTINATIONPOINT AS RIGHT DIAGONAL FROM CURRENT PIECE POSITION
                     if (!isValid(destinationPoint)) continue;
-                    if (!detectEnemy(destinationPoint, piece.getPieceColor())) {
+                    if (!detectEnemy(destinationPoint, oldPiece.getPieceColor())) {
                         if (chessboard.getField(destinationPoint.x, destinationPoint.y).isEmpty() && !calculationModeOnly)
-                            drawMarker(chessboard, destinationPoint, Field.STATE.CHECK_MOVE, piece);    //DRAWING MOVE INDICATOR IF THERE'S NO ENEMY
+                            drawMarker(chessboard, destinationPoint, old_Field.STATE.CHECK_MOVE, oldPiece);    //DRAWING MOVE INDICATOR IF THERE'S NO ENEMY
                     } else {
                         if (destinationPoint.y != extremeRowX && destinationPoint.x != extremeColumnY) {  //CHECKING IF ENEMY STANDING ON EXTREME FIELD
                             destinationPoint = new Point(destinationPoint.x + xAxisMove, destinationPoint.y + yAxisMove);       //SETTING DESTINATION POINT TO DIAGONAL FROM ENEMY
                             if (!isValid(destinationPoint)) continue;
-                            if (!detectEnemy(destinationPoint, piece.getPieceColor())) {
+                            if (!detectEnemy(destinationPoint, oldPiece.getPieceColor())) {
                                 try {
                                     if (!calculationModeOnly) {
-                                        drawMarker(chessboard, destinationPoint, Field.STATE.CHECK_HIT, piece, chessboard.getField(destinationPoint.x - xAxisMove, destinationPoint.y - yAxisMove).getPiece());     //DRAWING HIT INDICATOR IF FIELD IS EMPTY
+                                        drawMarker(chessboard, destinationPoint, old_Field.STATE.CHECK_HIT, oldPiece, chessboard.getField(destinationPoint.x - xAxisMove, destinationPoint.y - yAxisMove).getPiece());     //DRAWING HIT INDICATOR IF FIELD IS EMPTY
 
                                     }
                                     forcedAttack = true;
@@ -72,7 +72,7 @@ public class Queen implements MovementBehavior{
     }
 
     @Override
-    public boolean detectEnemy(Point fieldLocation, Piece.COLOR color) {
+    public boolean detectEnemy(Point fieldLocation, old_Piece.COLOR color) {
         try {
             if(chessboard.getField(fieldLocation.x, fieldLocation.y).getPiece().getPieceColor() != color)
                 return true;
@@ -84,33 +84,33 @@ public class Queen implements MovementBehavior{
     }
 
     @Override
-    public void movePiece(Piece piece, Point point) {
+    public void movePiece(old_Piece oldPiece, Point point) {
         try {
             Marker clickedMarker = chessboard.getField(point.x, point.y).getMarker();
-            if(clickedMarker.markerType()==Field.STATE.CHECK_MOVE) {
-                chessboard.getField(piece.startingPoint.x, piece.startingPoint.y).removePiece();
-                piece.startingPoint = point;
+            if(clickedMarker.markerType()== old_Field.STATE.CHECK_MOVE) {
+                chessboard.getField(oldPiece.startingPoint.x, oldPiece.startingPoint.y).removePiece();
+                oldPiece.startingPoint = point;
                 chessboard.getStage().draw();
                 removeMarkers(chessboard);
                 removeMarkers(chessboard);
-                chessboard.getField(point.x, point.y).setPiece(piece);
+                chessboard.getField(point.x, point.y).setPiece(oldPiece);
                 chessboard.swapTurn();
                 checkForHit();
             }
-            else if (clickedMarker.markerType()==Field.STATE.CHECK_HIT){
-                chessboard.getField(piece.startingPoint.x, piece.startingPoint.y).removePiece();
-                piece.startingPoint = point;
+            else if (clickedMarker.markerType()== old_Field.STATE.CHECK_HIT){
+                chessboard.getField(oldPiece.startingPoint.x, oldPiece.startingPoint.y).removePiece();
+                oldPiece.startingPoint = point;
                 removeMarkers(chessboard);
                 removeMarkers(chessboard);
-                chessboard.getField(point.x, point.y).setPiece(piece);
-                chessboard.getField(clickedMarker.getPieceToKill().getCurrentLocation().x,
-                        clickedMarker.getPieceToKill().getCurrentLocation().y).setCurrentState(Field.STATE.EMPTY);
-                chessboard.getField(clickedMarker.getPieceToKill().getCurrentLocation().x,
-                        clickedMarker.getPieceToKill().getCurrentLocation().y).removePiece();
+                chessboard.getField(point.x, point.y).setPiece(oldPiece);
+                chessboard.getField(clickedMarker.getOldPieceToKill().getCurrentLocation().x,
+                        clickedMarker.getOldPieceToKill().getCurrentLocation().y).setCurrentState(old_Field.STATE.EMPTY);
+                chessboard.getField(clickedMarker.getOldPieceToKill().getCurrentLocation().x,
+                        clickedMarker.getOldPieceToKill().getCurrentLocation().y).removePiece();
 
-                clickedMarker.getPieceToKill().remove();
+                clickedMarker.getOldPieceToKill().remove();
                 chessboard.getStage().draw();
-                checkForEndOfTurn(piece);
+                checkForEndOfTurn(oldPiece);
             }
         } catch (Exception ex){
 
@@ -119,29 +119,29 @@ public class Queen implements MovementBehavior{
 
     @Override
     public void checkForHit() {
-        Array<Piece> piecesWithHitAvailable = new Array<Piece>();
+        Array<old_Piece> piecesWithHitAvailable = new Array<old_Piece>();
         Array<Actor> actors = chessboard.getStage().getActors();
         for(Actor actor : actors){
-            if(actor instanceof Piece){
-                Piece piece = (Piece)actor;
-                if((piece.getPieceColor()==chessboard.TurnColor())){
-                    piece.isClickable(false);
-                    if(calculateMovementOptions(piece, true)){
-                        piecesWithHitAvailable.add(piece);
+            if(actor instanceof old_Piece){
+                old_Piece oldPiece = (old_Piece)actor;
+                if((oldPiece.getPieceColor()==chessboard.TurnColor())){
+                    oldPiece.isClickable(false);
+                    if(calculateMovementOptions(oldPiece, true)){
+                        piecesWithHitAvailable.add(oldPiece);
                     }
                 }
             }
         }
         if(!piecesWithHitAvailable.isEmpty())
-            for(Piece piece : piecesWithHitAvailable){
-                piece.isClickable(true);
+            for(old_Piece oldPiece : piecesWithHitAvailable){
+                oldPiece.isClickable(true);
             }
         else {
             for(Actor actor : chessboard.getStage().getActors()){
-                if(actor instanceof Piece){
-                    Piece piece = (Piece)actor;
-                    if((piece.getPieceColor()==chessboard.TurnColor())){
-                        piece.isClickable(true);
+                if(actor instanceof old_Piece){
+                    old_Piece oldPiece = (old_Piece)actor;
+                    if((oldPiece.getPieceColor()==chessboard.TurnColor())){
+                        oldPiece.isClickable(true);
                     }
                 }
             }
@@ -149,23 +149,23 @@ public class Queen implements MovementBehavior{
     }
 
     @Override
-    public void checkForEndOfTurn(Piece piece) {
-        if(!(calculateMovementOptions(piece, true))) {
+    public void checkForEndOfTurn(old_Piece oldPiece) {
+        if(!(calculateMovementOptions(oldPiece, true))) {
             chessboard.swapTurn();
             checkForHit();
         }
-        else calculateMovementOptions(piece, false);
+        else calculateMovementOptions(oldPiece, false);
     }
 
     @Override
-    public void drawMarker(Chessboard chessboard, Point destinationPoint, Field.STATE state, Piece piece) {
-        Marker marker = new Marker(destinationPoint.x, destinationPoint.y, chessboard, state, piece);
+    public void drawMarker(Chessboard chessboard, Point destinationPoint, old_Field.STATE state, old_Piece oldPiece) {
+        Marker marker = new Marker(destinationPoint.x, destinationPoint.y, chessboard, state, oldPiece);
         chessboard.getStage().addActor(marker);
     }
 
     @Override
-    public void drawMarker(Chessboard chessboard, Point destinationPoint, Field.STATE state, Piece piece, Piece pieceToKill) {
-        Marker marker = new Marker(destinationPoint.x, destinationPoint.y, chessboard, state, piece, pieceToKill);
+    public void drawMarker(Chessboard chessboard, Point destinationPoint, old_Field.STATE state, old_Piece oldPiece, old_Piece oldPieceToKill) {
+        Marker marker = new Marker(destinationPoint.x, destinationPoint.y, chessboard, state, oldPiece, oldPieceToKill);
         chessboard.getStage().addActor(marker);
     }
 
@@ -184,7 +184,7 @@ public class Queen implements MovementBehavior{
         Array<Actor> actorsCollection = chessboard.getStage().getActors();
         for(Actor actor : actorsCollection){
             if(actor instanceof Marker){
-                if(((Marker) actor).markerType()==Field.STATE.CHECK_MOVE)
+                if(((Marker) actor).markerType()== old_Field.STATE.CHECK_MOVE)
                     actor.remove();
             }
         }

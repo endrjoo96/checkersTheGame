@@ -1,25 +1,21 @@
-package com.mygdx.game.graphics.chessboardcomponents;
+package com.mygdx.game.gameplay.objects.chessboardcomponents.tiles;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.mygdx.game.graphics.FIELD_COLOR;
+import com.mygdx.game.graphics.FieldTile;
 
 import java.awt.*;
 
-public class FieldTile {
-    public enum COLOR_TYPE {
-        LIGHT, DARK
-    }
-
+public class FieldTileImpl implements FieldTile {
     protected int size;
     protected COLOR_TYPE colorType;
     protected Color colorForLight = FIELD_COLOR.FIELD_LIGHT,
                     colorForDark  = FIELD_COLOR.FIELD_DARK;
     protected TextureRegion texture;
 
-    public FieldTile(int size, COLOR_TYPE colorType) {
+    public FieldTileImpl(int size, COLOR_TYPE colorType) {
         this.size = size;
         this.colorType = colorType;
     }

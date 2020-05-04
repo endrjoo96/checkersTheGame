@@ -1,6 +1,6 @@
 package com.mygdx.game.objects;
 
-public class Field {
+public class old_Field {
     public enum STATE{
         EMPTY, ISBLACK, ISWHITE, CHECK_MOVE, CHECK_HIT
     }
@@ -9,10 +9,10 @@ public class Field {
     }
     private STATE currentState;
     private final COLOR color;
-    private Piece currentPiece = null;
+    private old_Piece currentOldPiece = null;
     private Marker currentMarker = null;
 
-    public Field(COLOR color){
+    public old_Field(COLOR color){
         currentState = STATE.EMPTY;
         this.color = color;
     }
@@ -21,9 +21,9 @@ public class Field {
         currentState = arg;
     }
 
-    public void setCurrentState(Piece piece){
-        currentPiece = piece;
-        currentState = (piece.getPieceColor()==Piece.COLOR.WHITE) ? STATE.ISWHITE : STATE.ISBLACK;
+    public void setCurrentState(old_Piece oldPiece){
+        currentOldPiece = oldPiece;
+        currentState = (oldPiece.getPieceColor()== old_Piece.COLOR.WHITE) ? STATE.ISWHITE : STATE.ISBLACK;
     }
     public STATE getCurrentState(){
         return currentState;
@@ -33,9 +33,9 @@ public class Field {
         return color;
     }
 
-    public Piece getPiece() throws Exception{
-        if(currentPiece==null) throw new Exception("Tried to get piece from empty field");
-        return currentPiece;
+    public old_Piece getPiece() throws Exception{
+        if(currentOldPiece ==null) throw new Exception("Tried to get piece from empty field");
+        return currentOldPiece;
     }
 
     public Marker getMarker() throws Exception{
@@ -47,10 +47,10 @@ public class Field {
         currentMarker=marker;
     }
 
-    public void setPiece(Piece piece){
+    public void setPiece(old_Piece oldPiece){
 
-        currentPiece=piece;
-        setCurrentState(piece);
+        currentOldPiece = oldPiece;
+        setCurrentState(oldPiece);
     }
 
     public void removeMarker(){
@@ -59,7 +59,7 @@ public class Field {
     }
 
     public void removePiece(){
-        currentPiece=null;
+        currentOldPiece =null;
         setCurrentState(STATE.EMPTY);
     }
 

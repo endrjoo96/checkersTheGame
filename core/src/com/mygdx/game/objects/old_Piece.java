@@ -1,27 +1,20 @@
 package com.mygdx.game.objects;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Event;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.mygdx.game.CheckersGame;
-import com.mygdx.game.graphics.Chessboard;
+import com.mygdx.game.gameplay.objects.Chessboard;
 import com.mygdx.game.files.FILES;
-import com.mygdx.game.objects.movementmethods.MovementBehavior;
+import com.mygdx.game.objects.movementmethods.old_MovementBehavior;
 import com.mygdx.game.objects.movementmethods.Regular;
 
 import java.awt.*;
 
-public class Piece extends Actor {
+public class old_Piece extends Actor {
     public enum COLOR {
         WHITE, BLACK
     }
@@ -32,7 +25,7 @@ public class Piece extends Actor {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        Point positionInPixels = chessboard.getPosition(startingPoint.x, startingPoint.y);
+        Point positionInPixels = chessboard.getPositionInPixels(startingPoint.x, startingPoint.y);
         sprite.setPosition(positionInPixels.x, positionInPixels.y);
         sprite.draw(batch);
     }
@@ -50,12 +43,12 @@ public class Piece extends Actor {
     private Sprite sprite;
     public Point startingPoint;
     private Chessboard chessboard;
-    private MovementBehavior behavior;
+    private old_MovementBehavior behavior;
 
-    public Piece(COLOR pieceColor, int xPosition, int yPosition, Chessboard chessboard) {
+    public old_Piece(COLOR pieceColor, int xPosition, int yPosition, Chessboard chessboard) {
         behavior = new Regular(chessboard);
         this.chessboard = chessboard;
-        chessboard.getField(xPosition, yPosition).setPiece(this);
+        chessboard.getField(xPosition, yPosition).setPiece(this);   //o kurwa
         color = pieceColor;
         currentType = TYPE.REGULAR;
 
@@ -98,13 +91,13 @@ public class Piece extends Actor {
         behavior.calculateMovementOptions(this, false);
     }
 
-    public void setMovement(MovementBehavior newBehavior) {
+    public void setMovement(old_MovementBehavior newBehavior) {
         behavior = newBehavior;
     }
 
     public COLOR getPieceColor() {
         return color;
-    }
+    }   // pełna dowolność, pionek może zmienić kolor w trakcie gry XDDDD
 
     public TYPE getPieceType() {
         return currentType;
