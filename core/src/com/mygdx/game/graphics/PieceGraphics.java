@@ -9,7 +9,7 @@ import com.mygdx.game.files.FILES;
 import com.mygdx.game.gameplay.GameplayDriver;
 import com.mygdx.game.gameplay.objects.Chessboard;
 
-public final class PieceGraphics {
+public class PieceGraphics {
     public static Pixmap blackRegularPixmap =
             generatePixmap(Gdx.files.internal(FILES.ASSETS.CHECKER_BLACK));
     public static Pixmap whiteRegularPixmap =
@@ -34,7 +34,5 @@ public final class PieceGraphics {
     public Texture texture;
     public Sprite sprite;
     public Pixmap pixmap;
-
-
 
 }

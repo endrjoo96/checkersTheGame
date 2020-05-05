@@ -15,7 +15,7 @@ public class CheckersStandardRules implements Rules {
     private Piece piece;
 
     @Override
-    public boolean argumentsMeetsPiecesPlacingRules(TilesGrid grid, Piece piece) {
+    public boolean piecePlacementFollowsTheRules(TilesGrid grid, Piece piece) {
         this.grid=grid;
         this.position=piece.getPositionOnChessboard();
         this.piece=piece;

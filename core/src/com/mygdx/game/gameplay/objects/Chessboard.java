@@ -2,9 +2,7 @@ package com.mygdx.game.gameplay.objects;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -19,7 +17,6 @@ import com.mygdx.game.gameplay.objects.chessboardcomponents.pieces.WhitePiece;
 import com.mygdx.game.gameplay.objects.chessboardcomponents.tiles.FieldTileImpl;
 import com.mygdx.game.gameplay.objects.chessboardcomponents.tiles.IndicatorImpl;
 import com.mygdx.game.gameplay.objects.chessboardcomponents.tiles.TilesGrid;
-import com.mygdx.game.graphics.FieldTile;
 import com.mygdx.game.graphics.GameScreen;
 import com.mygdx.game.objects.old_Field;
 import com.mygdx.game.objects.Marker;
@@ -28,8 +25,8 @@ import com.mygdx.game.objects.movementmethods.Queen;
 
 import java.awt.*;
 
-public class Chessboard extends InputAdapter {
-    private int xDim=8, yDim=12;
+public class Chessboard {
+    private int xDim=9, yDim=9;
     private int segmentSize=0;
     private old_Field[][] oldFields = new old_Field[xDim][yDim];
     private TiledMap tiledMap;
@@ -189,11 +186,11 @@ public class Chessboard extends InputAdapter {
             for(int x=0; x<xDim; x++){
                 WhitePiece whitePiece = new WhitePiece(new Point(x,y));
                 BlackPiece blackPiece = new BlackPiece(new Point(x,y));
-                if(GameplayDriver.getGameRules().argumentsMeetsPiecesPlacingRules(
+                if(GameplayDriver.getGameRules().piecePlacementFollowsTheRules(
                         tilesGrid, whitePiece)){
                     tilesGrid.setPiece(whitePiece);
                 }
-                else if(GameplayDriver.getGameRules().argumentsMeetsPiecesPlacingRules(
+                else if(GameplayDriver.getGameRules().piecePlacementFollowsTheRules(
                         tilesGrid, blackPiece)){
                     tilesGrid.setPiece(blackPiece);
                 }
@@ -250,35 +247,6 @@ public class Chessboard extends InputAdapter {
 
     public Stage getStage(){
         return stage;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        boolean isPiece=true;
-        screenY = Gdx.graphics.getHeight()-screenY;
-        try {
-            old_Piece clickedOldPiece = getPieceFromCoordinates(new Point(screenX, screenY));
-            if(clickedOldPiece.getPieceColor()==TurnColor()&& clickedOldPiece.isClickable())
-                clickedOldPiece.calculateMovementOptions();
-        }catch (Exception ex) {
-            isPiece=false;
-        }
-        if(!isPiece){
-            try {
-                Marker clickedMarker = getMarkerFromCoordinates(new Point(screenX, screenY));
-                clickedMarker.getMarkerOwner().moveTo(calculateClickedTile(new Point(screenX, screenY)));
-                if((clickedMarker.getMarkerOwner().getPosition().y == yDim-1 || clickedMarker.getMarkerOwner().getPosition().y==0)
-                        && clickedMarker.getMarkerOwner().getPieceType() == old_Piece.TYPE.REGULAR){
-                clickedMarker.getMarkerOwner().setMovement(new Queen(instance));
-                clickedMarker.getMarkerOwner().setPieceType(old_Piece.TYPE.MASTER);
-                clickedMarker.getMarkerOwner().setTexture(new Pixmap(Gdx.files.internal((clickedMarker.getMarkerOwner().getPieceColor()== old_Piece.COLOR.WHITE)?FILES.ASSETS.CHECKER_WHITE_MASTER : FILES.ASSETS.CHECKER_BLACK_MASTER)));
-                }
-            } catch(Exception ex){
-                isPiece=false;
-            }
-        }
-        return super.touchDown(screenX, screenY, pointer, button);
-
     }
 
     private Point calculateClickedTile(Point click){

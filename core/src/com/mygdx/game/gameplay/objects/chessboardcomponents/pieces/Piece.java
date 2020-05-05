@@ -1,11 +1,12 @@
 package com.mygdx.game.gameplay.objects.chessboardcomponents.pieces;
 
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.mygdx.game.gameplay.GameplayDriver;
 import com.mygdx.game.gameplay.mechanics.movement.MovementBehavior;
 import com.mygdx.game.gameplay.mechanics.movement.RegularMovement;
@@ -16,7 +17,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.awt.*;
 
 public abstract class Piece extends Actor {
-    public enum COLOR_VARIANT{
+    public enum COLOR_VARIANT {
         BLACK, WHITE
     }
 
@@ -40,7 +41,7 @@ public abstract class Piece extends Actor {
         super.act(delta);
     }
 
-    public Piece(Point positionOnChessboard, Pixmap piecePixmap, COLOR_VARIANT variant){
+    public Piece(Point positionOnChessboard, Pixmap piecePixmap, COLOR_VARIANT variant) {
         this.positionOnChessboard = positionOnChessboard;
         graphics.pixmap = piecePixmap;
         this.variant = variant;
@@ -50,7 +51,7 @@ public abstract class Piece extends Actor {
         setSpriteNecessaryParameters();
     }
 
-    private void createTextureAndSprite(){
+    private void createTextureAndSprite() {
         graphics.texture = new Texture(graphics.pixmap);
         graphics.sprite = new Sprite(graphics.texture);
     }
@@ -61,26 +62,26 @@ public abstract class Piece extends Actor {
         this.setTouchable(Touchable.enabled);
     }
 
-    public void changePixmap(Pixmap piecePixmap){
+    protected void changePixmap(Pixmap piecePixmap) {
         graphics.pixmap = piecePixmap;
 
         createTextureAndSprite();
         setSpriteNecessaryParameters();
     }
 
-    public Point getPositionOnChessboard(){
+    public Point getPositionOnChessboard() {
         return new Point(positionOnChessboard);
     }
 
-    public void movePiece(Point destination){
-        if(isPositionValid()){
+    public void movePiece(Point destination) {
+        if (isPositionValid()) {
             movementBehavior.movePiece();
         }
     }
 
     private boolean isPositionValid() {
-        if( isPositionInChessboardBounds() &&
-            isPositionEmpty()){
+        if (isPositionInChessboardBounds() &&
+                isPositionEmpty()) {
             return true;
         }
         return false;
@@ -94,7 +95,17 @@ public abstract class Piece extends Actor {
         throw new NotImplementedException();
     }
 
-    public COLOR_VARIANT getVariant(){
+    public COLOR_VARIANT getVariant() {
         return variant;
+    }
+
+    protected void setMovementBehavior(Class behaviorClass) {
+        try {
+            movementBehavior = (MovementBehavior)
+                    behaviorClass.getDeclaredConstructor(Piece.class)
+                            .newInstance(this);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

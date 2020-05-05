@@ -33,17 +33,13 @@ public class GameScreen extends ScreenAdapter {
 
         GameplayDriver.prepareActors();
 
-        for (int y = 0; y < board.getSize().height; y++) {
-            for (int x = 0; x < board.getSize().width; x++) {
-                Piece tempPiece;
-                if((tempPiece = board.getGrid().getPieceAt(new Point(x,y)))!=null){
-                    stage.addActor(tempPiece);
-                }
-            }
+        for (Piece pieceActor: board.getGrid().getPiecesAsArray()
+             ) {
+            stage.addActor(pieceActor);
         }
 
         board.assignStage(stage);
-        Gdx.input.setInputProcessor(board);
+        Gdx.input.setInputProcessor(GameplayDriver.inputAdapter);
     }
 
     @Override
